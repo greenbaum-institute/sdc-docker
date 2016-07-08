@@ -16,6 +16,7 @@ var assert = require('assert-plus');
 var exec = require('child_process').exec;
 var fmt = require('util').format;
 var fs = require('fs');
+var mkdirp = require('mkdirp');
 var mod_log = require('../lib/log');
 var os = require('os');
 var path = require('path');
@@ -604,6 +605,26 @@ function _stepCreateClientZone(state_, cb) {
             }
 
             setTimeout(attempt, 1000);
+        },
+
+        function copyDockerConfigFile(state, next) {
+            var gzConfigPath = process.env.DOCKER_TEST_CONFIG_FILE;
+            if (!gzConfigPath) {
+                next();
+                return;
+            }
+            p('# Copying docker config file (%s) into client zone',
+                gzConfigPath);
+            var zoneConfigPath = fmt('/zones/%s/root/root/.docker/config.json',
+                state.clientZone.uuid);
+            mkdirp(path.dirname(zoneConfigPath), function (err) {
+                if (err) {
+                    next(err);
+                    return;
+                }
+                fs.writeFileSync(zoneConfigPath, fs.readFileSync(gzConfigPath));
+                next();
+            });
         }
 
     ]}, cb);
