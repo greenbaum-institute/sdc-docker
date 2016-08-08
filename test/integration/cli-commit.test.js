@@ -31,7 +31,9 @@ var STATE = {
     log: require('../lib/log')
 };
 
-var CONTAINER_PREFIX = 'sdcdockertest_commit_';
+var COMMIT_IMAGE_TAG_PREFIX = 'sdcdockertest-commit-image-tag';
+var CONTAINER_PREFIX = 'sdcdockertest-commit-container';
+
 var IMAGE_NAME = 'busybox';
 var TP = 'api: commit: ';  // Test prefix.
 
@@ -50,8 +52,8 @@ test(TP + 'setup', function (tt) {
 
 test(TP + 'test add file', function (tt) {
 
-    var commitImageTag = common.makeContainerName(CONTAINER_PREFIX);
-    var containerName = common.makeContainerName(CONTAINER_PREFIX);
+    var commitImageTag = common.makeResourceName(COMMIT_IMAGE_TAG_PREFIX);
+    var containerName = common.makeResourceName(CONTAINER_PREFIX);
 
     tt.test('run ' + IMAGE_NAME + ' container', function (t) {
         var runArgs = format('--name %s %s sh -c "echo hello > '
