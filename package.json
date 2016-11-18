@@ -29,7 +29,7 @@
     "ufds": "1.2.0",
     "vasync": "1.6.3",
     "verror": "1.6.0",
-    "wf-client": "git+https://github.com/joyent/sdc-wf-client.git#rfd-35-cls"
+    "wf-client": "git+https://github.com/joyent/sdc-wf-client.git#rfd-35-cls",
     "xregexp": "3.1.0"
   },
   "devDependencies": {
