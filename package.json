@@ -26,6 +26,7 @@
     "strsplit": "1.0.0",
     "tape": "^4.4.0",
     "triton-tags": "1.0.0",
+    "triton-tracer": "git+https://github.com/joshwilsdon/triton-tracer.git#rfd-35-cls",
     "ufds": "1.2.0",
     "vasync": "1.6.3",
     "verror": "1.9.0",
