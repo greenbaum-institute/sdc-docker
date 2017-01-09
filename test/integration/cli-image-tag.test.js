@@ -5,7 +5,7 @@
  */
 
 /*
- * Copyright (c) 2016, Joyent, Inc.
+ * Copyright (c) 2017, Joyent, Inc.
  */
 
 /*
@@ -114,9 +114,9 @@ test('tag image', function (tt) {
 
 
 /**
- * DOCKER-748: Cannot build an image that references multiple registries.
+ * DOCKER-756: Check can tag an image that references multiple registries.
  */
-test('DOCKER-748: tag between different registries', function (tt) {
+test('DOCKER-756: tag between different registries', function (tt) {
 
     var tagName = 'quay.io/joyent/' + TAG_PREFIX + 'altbox';
 
@@ -128,12 +128,9 @@ test('DOCKER-748: tag between different registries', function (tt) {
 
     // Tag the image.
     tt.test('tag busybox image', function (t) {
-        cli.docker('tag busybox ' + tagName, {}, onComplete);
-        function onComplete(err, stdout, stderr) {
-            t.assert(err);
-            t.assert(String(err).indexOf('different registries') >= 0,
-                'should be a "different registries" error message');
+        cli.docker('tag busybox ' + tagName, {}, function onComplete(err) {
+            t.ifErr(err);
             t.end();
-        }
+        });
     });
 });
