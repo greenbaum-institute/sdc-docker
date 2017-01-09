@@ -5,7 +5,7 @@
  */
 
 /*
- * Copyright (c) 2016, Joyent, Inc.
+ * Copyright (c) 2017, Joyent, Inc.
  */
 
 /*
@@ -292,7 +292,7 @@ test('api: build image conflicts', function (tt) {
 
 
 /**
- * DOCKER-748: Cannot build an image that references multiple registries.
+ * DOCKER-756: Ensure can build an image that references multiple registries.
  */
 test('api: build across multiple registries', function (tt) {
     var imageName = 'quay.io/joyent/triton_alpine_inherit_test:latest';
@@ -310,6 +310,7 @@ test('api: build across multiple registries', function (tt) {
     });
 
     tt.test('docker build from alpine image (cross registry)', function (t) {
+        var dockerImageId;
         var tarStream;
 
         vasync.waterfall([
@@ -335,13 +336,24 @@ test('api: build across multiple registries', function (tt) {
 
                 function onbuild(err, result) {
                     t.ifErr(err, 'build should not error on post');
-                    var msg = result.body;
-                    if (msg.indexOf('different registries') === -1) {
-                        t.fail('expected a "different registries" error '
-                            + 'message, got: "' + msg + '"');
+                    var output = result.body;
+
+                    var hasSuccess = output.indexOf('Successfully built') >= 0;
+                    t.ok(hasSuccess,
+                        'output should contain: Successfully built');
+                    if (hasSuccess) {
+                        var reg = new RegExp('Successfully built (\\w+)');
+                        dockerImageId = output.match(reg)[1];
+                    } else {
+                        t.fail('Output: ' + output);
                     }
                     next();
                 }
+            },
+
+            function removeBuiltImage(next) {
+                t.ok(dockerImageId, 'Got the docker image id');
+                DOCKER_ALICE.del('/images/' + dockerImageId, next);
             }
 
         ], function allDone(err) {
