@@ -17,6 +17,7 @@ var drc = require('docker-registry-client');
 var exec = require('child_process').exec;
 var fmt = require('util').format;
 var fs = require('fs');
+var mkdirp = require('mkdirp');
 var moray = require('moray');
 var os = require('os');
 var path = require('path');
@@ -481,7 +482,8 @@ function stepClientZone(state_, cb) {
             });
         },
         // Create the client zone if necessary.
-        _stepCreateClientZone
+        _stepCreateClientZone,
+        _stepCopyClientZoneDockerConfig
     ]}, cb);
 }
 
@@ -610,6 +612,40 @@ function _stepCreateClientZone(state_, cb) {
         }
 
     ]}, cb);
+}
+
+function _stepCopyClientZoneDockerConfig(state, cb) {
+    var gzConfigPath = process.env.DOCKER_TEST_CONFIG_FILE;
+    if (!gzConfigPath) {
+        cb();
+        return;
+    }
+    p('# Copying docker config file (%s) into client zone',
+        gzConfigPath);
+    var zoneConfigPath = fmt('/zones/%s/root/root/.docker/config.json',
+        state.clientZone.uuid);
+    var zoneOldConfigPath = fmt('/zones/%s/root/root/.dockercfg',
+        state.clientZone.uuid);
+    mkdirp(path.dirname(zoneConfigPath), function (err) {
+        if (err) {
+            cb(err);
+            return;
+        }
+        var contents = fs.readFileSync(gzConfigPath);
+        fs.writeFileSync(zoneConfigPath, contents);
+
+        // In order to support docker 1.6 and docker 1.7 clients, an alternative
+        // JSON file with a subset of the contents is required.
+        var authDetails;
+        try {
+            authDetails = JSON.parse(contents);
+        } catch (ex) {
+            cb(new Error('Unable to parse JSON config file: ' + gzConfigPath));
+            return;
+        }
+        fs.writeFileSync(zoneOldConfigPath, JSON.stringify(authDetails.auths));
+        cb();
+    });
 }
 
 
