@@ -108,6 +108,37 @@ test('container filters', function (tt) {
         + ' --filter label=fishing=fun'
         + ' --filter label=todd=cool',
         [containerName2]);
+
+    tt.test('stop container 1', function (t) {
+        cli.stop(t, {args: containerName1}, function (err) {
+            t.ifErr(err, 'docker stop ' + containerName1);
+            t.end();
+        });
+    });
+
+    // Filtering against running/stopped containers.
+    checkContainerFiltering(tt, '--filter name=' + CONTAINER_PREFIX,
+        [containerName2]);
+
+    // Filtering against running/stopped containers.
+    checkContainerFiltering(tt, '--filter name=' + CONTAINER_PREFIX
+        + ' --filter status=exited',
+        [containerName1]);
+
+    // Filtering against running/stopped containers.
+    checkContainerFiltering(tt, '--filter name=' + CONTAINER_PREFIX
+        + ' --filter status=running',
+        [containerName2]);
+
+    // Filtering using limit - should match running/stopped containers.
+    checkContainerFiltering(tt, '--filter name=' + CONTAINER_PREFIX
+        + ' --last 10',
+        [containerName1, containerName2]);
+
+    // Filtering using negative limit - should only match running containers.
+    checkContainerFiltering(tt, '--filter name=' + CONTAINER_PREFIX
+        + ' --last -10',
+        [containerName2]);
 });
 
 
