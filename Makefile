@@ -5,7 +5,7 @@
 #
 
 #
-# Copyright 2016 Joyent, Inc.
+# Copyright 2017 Joyent, Inc.
 #
 
 NAME:=docker
@@ -24,7 +24,7 @@ JSSTYLE_FLAGS	 = -f tools/jsstyle.conf
 SMF_MANIFESTS_IN = smf/manifests/docker.xml.in
 CLEAN_FILES += ./node_modules
 
-NODE_PREBUILT_VERSION=v4.6.1
+NODE_PREBUILT_VERSION=v4.7.3
 ifeq ($(shell uname -s),SunOS)
 	NODE_PREBUILT_TAG=zone
 	# Allow building on other than image sdc-minimal-multiarch-lts@15.4.1.
